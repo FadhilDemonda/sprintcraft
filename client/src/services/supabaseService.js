@@ -70,10 +70,11 @@ const mapProjectFromDb = (p) => ({
   description: p.description,
   category: p.category,
   color: p.color,
+  ownerId: p.owner_id,
   createdAt: p.created_at,
 })
 
-const mapProjectToDb = (p) => {
+const mapProjectToDb = (p, ownerId) => {
   const row = {
     title: p.title,
     description: p.description,
@@ -81,6 +82,7 @@ const mapProjectToDb = (p) => {
     color: p.color || '#14b8a6',
   }
   if (p.id) row.id = p.id
+  if (ownerId || p.ownerId || p.owner_id) row.owner_id = ownerId || p.ownerId || p.owner_id
   return row
 }
 
@@ -88,17 +90,19 @@ const mapNoteFromDb = (n) => ({
   id: n.id,
   title: n.title,
   content: n.content,
+  ownerId: n.owner_id,
   createdAt: n.created_at,
   updatedAt: n.updated_at,
 })
 
-const mapNoteToDb = (n) => {
+const mapNoteToDb = (n, ownerId) => {
   const row = {
     title: n.title,
     content: n.content,
     updated_at: new Date().toISOString(),
   }
   if (n.id) row.id = n.id
+  if (ownerId || n.ownerId || n.owner_id) row.owner_id = ownerId || n.ownerId || n.owner_id
   return row
 }
 
@@ -108,14 +112,23 @@ export const supabaseService = {
   // ---------------------------------------------------------------------------
   async getProjects() {
     if (!isSupabaseConfigured()) return null
-    const { data, error } = await supabase.from('projects').select('*').order('created_at', { ascending: true })
+    const { data: userData } = await supabase.auth.getUser().catch(() => ({ data: {} }))
+    const user = userData?.user
+    
+    let query = supabase.from('projects').select('*').order('created_at', { ascending: true })
+    if (user) {
+      query = query.eq('owner_id', user.id)
+    }
+    const { data, error } = await query
     if (error) throw error
     return (data || []).map(mapProjectFromDb)
   },
 
   async createProject(project) {
     if (!isSupabaseConfigured()) return null
-    const row = mapProjectToDb(project)
+    const { data: userData } = await supabase.auth.getUser().catch(() => ({ data: {} }))
+    const user = userData?.user
+    const row = mapProjectToDb(project, user?.id)
     const { data, error } = await supabase.from('projects').insert([row]).select().single()
     if (error) throw error
     return mapProjectFromDb(data)
@@ -131,9 +144,13 @@ export const supabaseService = {
   // ---------------------------------------------------------------------------
   // Sprints
   // ---------------------------------------------------------------------------
-  async getSprints() {
+  async getSprints(projectIds) {
     if (!isSupabaseConfigured()) return null
-    const { data, error } = await supabase.from('sprints').select('*').order('created_at', { ascending: true })
+    let query = supabase.from('sprints').select('*').order('created_at', { ascending: true })
+    if (projectIds && projectIds.length > 0) {
+      query = query.in('project_id', projectIds)
+    }
+    const { data, error } = await query
     if (error) throw error
     return (data || []).map(mapSprintFromDb)
   },
@@ -164,12 +181,16 @@ export const supabaseService = {
   // ---------------------------------------------------------------------------
   // Tasks & Comments
   // ---------------------------------------------------------------------------
-  async getTasks() {
+  async getTasks(projectIds) {
     if (!isSupabaseConfigured()) return null
-    const { data, error } = await supabase
+    let query = supabase
       .from('tasks')
       .select(`*, task_comments (*)`)
       .order('order_index', { ascending: true })
+    if (projectIds && projectIds.length > 0) {
+      query = query.in('project_id', projectIds)
+    }
+    const { data, error } = await query
     if (error) throw error
     return (data || []).map(mapTaskFromDb)
   },
@@ -226,14 +247,23 @@ export const supabaseService = {
   // ---------------------------------------------------------------------------
   async getNotes() {
     if (!isSupabaseConfigured()) return null
-    const { data, error } = await supabase.from('notes').select('*').order('created_at', { ascending: false })
+    const { data: userData } = await supabase.auth.getUser().catch(() => ({ data: {} }))
+    const user = userData?.user
+    
+    let query = supabase.from('notes').select('*').order('created_at', { ascending: false })
+    if (user) {
+      query = query.eq('owner_id', user.id)
+    }
+    const { data, error } = await query
     if (error) throw error
     return (data || []).map(mapNoteFromDb)
   },
 
   async createNote(note) {
     if (!isSupabaseConfigured()) return null
-    const row = mapNoteToDb(note)
+    const { data: userData } = await supabase.auth.getUser().catch(() => ({ data: {} }))
+    const user = userData?.user
+    const row = mapNoteToDb(note, user?.id)
     const { data, error } = await supabase.from('notes').insert([row]).select().single()
     if (error) throw error
     return mapNoteFromDb(data)

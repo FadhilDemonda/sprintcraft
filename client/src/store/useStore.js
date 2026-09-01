@@ -396,17 +396,18 @@ export const useStore = create((set, get) => ({
 
         // 2. Fetch Projects (Isolated per user/cloud)
         const cloudProjects = await supabaseService.getProjects()
+        const projectIds = (cloudProjects || []).map(p => p.id)
         set({
           projects: cloudProjects || [],
           currentProjectId: (cloudProjects && cloudProjects.length > 0) ? cloudProjects[0].id : null
         })
 
-        // 3. Fetch Sprints
-        const cloudSprints = await supabaseService.getSprints()
+        // 3. Fetch Sprints (for user's projects)
+        const cloudSprints = await supabaseService.getSprints(projectIds)
         set({ sprints: cloudSprints || [] })
 
-        // 4. Fetch Tasks
-        const cloudTasks = await supabaseService.getTasks()
+        // 4. Fetch Tasks (for user's projects)
+        const cloudTasks = await supabaseService.getTasks(projectIds)
         set({ tasks: cloudTasks || [] })
 
         // 5. Fetch Notes
@@ -420,10 +421,11 @@ export const useStore = create((set, get) => ({
         if (!get().isRealtimeSubscribed) {
           set({ isRealtimeSubscribed: true })
           supabaseService.subscribeToAll(async () => {
-            const [p, s, t, n] = await Promise.all([
-              supabaseService.getProjects().catch(() => null),
-              supabaseService.getSprints().catch(() => null),
-              supabaseService.getTasks().catch(() => null),
+            const p = await supabaseService.getProjects().catch(() => null)
+            const pIds = (p || []).map(item => item.id)
+            const [s, t, n] = await Promise.all([
+              supabaseService.getSprints(pIds).catch(() => null),
+              supabaseService.getTasks(pIds).catch(() => null),
               supabaseService.getNotes().catch(() => null),
             ])
             if (p) set({ projects: p })
