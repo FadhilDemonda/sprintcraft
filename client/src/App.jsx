@@ -13,7 +13,7 @@ import { LandingPage } from './components/LandingPage'
 import { Sidebar } from './components/Sidebar'
 import { BacklogView } from './components/BacklogView'
 import { MeetingNotesView } from './components/MeetingNotesView'
-import { CookieBanner } from './components/CookieBanner'
+import { ConsentNotice } from './components/ConsentNotice'
 import { useStore } from './store/useStore'
 
 export default function App() {
@@ -81,7 +81,7 @@ export default function App() {
       <ExportModal />
       <CreateProjectModal />
       <ProfileModal isOpen={isProfileModalOpen} onClose={closeProfileModal} />
-      <CookieBanner />
+      <ConsentNotice />
     </div>
   )
 }
