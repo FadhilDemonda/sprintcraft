@@ -494,6 +494,8 @@ export const useStore = create((set, get) => ({
   // Projects list
   projects: [],
   currentProjectId: null, // Default active project or null
+  setCurrentProject: (projectId) => set({ currentProjectId: projectId }),
+  setCurrentProjectId: (projectId) => set({ currentProjectId: projectId }),
 
   // Active Project Getter
   getCurrentProject: () => {
