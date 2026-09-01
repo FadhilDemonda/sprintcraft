@@ -1,0 +1,101 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --bg-base: #F8FAFC;
+    --bg-card: #FFFFFF;
+    --bg-input: #F1F5F9;
+    --bg-hover: #E2E8F0;
+    --border: #E2E8F0;
+    --border-hover: #CBD5E1;
+    --text-primary: #0F172A;
+    --text-secondary: #475569;
+    --text-muted: #94A3B8;
+    --primary: #0D9488;
+    --primary-hover: #0F766E;
+    --accent-cta: #EA580C;
+    --accent-cta-hover: #C2410C;
+    --shadow-card: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+    --shadow-hover: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.07);
+  }
+
+  .dark {
+    --bg-base: #090D16;
+    --bg-card: #111827;
+    --bg-input: #172033;
+    --bg-hover: #1E293B;
+    --border: #1F293D;
+    --border-hover: #334155;
+    --text-primary: #F8FAFC;
+    --text-secondary: #94A3B8;
+    --text-muted: #64748B;
+    --primary: #14B8A6;
+    --primary-hover: #0D9488;
+    --accent-cta: #EA580C;
+    --accent-cta-hover: #C2410C;
+    --shadow-card: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.4);
+    --shadow-hover: 0 20px 25px -5px rgb(0 0 0 / 0.6), 0 8px 10px -6px rgb(0 0 0 / 0.5);
+  }
+
+  * {
+    border-color: var(--border);
+    box-sizing: border-box;
+  }
+
+  body {
+    background-color: var(--bg-base);
+    color: var(--text-primary);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    transition: background-color 0.25s ease, color 0.25s ease;
+  }
+
+  #root {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--bg-base);
+  }
+}
+
+/* Custom themed scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-base);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border-hover);
+}
+
+/* Focus ring accessibility */
+.focus-ring {
+  outline: none;
+}
+.focus-ring:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Smooth transitions */
+.transition-smooth {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Force dark (black) grab cursor in Light Mode so it's always visible */
+html.light .cursor-grab {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%230F172A' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 13v-5a2 2 0 1 1 4 0v5'/%3E%3Cpath d='M13 13v-4a2 2 0 1 1 4 0v5'/%3E%3Cpath d='M17 13v-3a2 2 0 1 1 4 0v6a8 8 0 0 1-16 0V6a2 2 0 1 1 4 0v7'/%3E%3C/svg%3E") 12 12, grab !important;
+}
+
+html.light .active\:cursor-grabbing:active, 
+html.light .cursor-grabbing {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='%230F172A' stroke='%230F172A' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 13v-5a2 2 0 1 1 4 0v5'/%3E%3Cpath d='M13 13v-4a2 2 0 1 1 4 0v5'/%3E%3Cpath d='M17 13v-3a2 2 0 1 1 4 0v6a8 8 0 0 1-16 0V6a2 2 0 1 1 4 0v7'/%3E%3C/svg%3E") 12 12, grabbing !important;
+}

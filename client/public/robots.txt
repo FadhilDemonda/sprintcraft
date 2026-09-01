@@ -1,0 +1,7 @@
+# SprintCraft AI Robots.txt
+User-agent: *
+Allow: /
+Disallow: /api/
+
+# Sitemap Location
+Sitemap: https://sprintcraft.ai/sitemap.xml

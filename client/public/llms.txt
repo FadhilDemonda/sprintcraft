@@ -1,0 +1,21 @@
+# SprintCraft AI
+> AI-Powered Sprint Planning & Real-Time Collaborative Agile Kanban Platform
+
+## Overview
+SprintCraft AI is a modern agile workspace built for high-velocity engineering teams and product managers. It transforms complex Product Requirements Documents (PRDs) and meeting notes into structured user stories, acceptance criteria, story points, and sprint backlogs using Google Gemini AI.
+
+## Key Features
+- **PRD Decomposition**: Automatically breaks down technical specs into Epics, User Stories, and Engineering Tasks.
+- **Meeting Notes AI**: Extracts actionable backlog tickets and assignees directly from meeting transcripts.
+- **Real-Time Kanban Board**: Drag-and-drop workflow with Supabase PostgreSQL live subscriptions.
+- **Sprint Management**: Plan sprints, track velocity, and monitor story points in real-time.
+- **Data Portability**: Export backlogs into Markdown, JSON, Jira, and GitHub Issues format.
+
+## Tech Stack
+- Frontend: React 19, Vite, TailwindCSS, Zustand, DnD Kit, Lucide Icons.
+- Backend: Node.js Express, Google GenAI SDK (Gemini Flash).
+- Database & Auth: Supabase (PostgreSQL 15, Row-Level Security, Realtime Publications).
+
+## Official Links
+- Website: https://sprintcraft.ai
+- Repository: https://github.com/sprintcraft/sprintcraft-ai
