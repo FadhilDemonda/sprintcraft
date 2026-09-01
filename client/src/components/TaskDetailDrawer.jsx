@@ -8,10 +8,13 @@ import {
   MessageSquare,
   CheckSquare,
   User,
+  UserCheck,
+  UserMinus,
   Calendar,
   AlertCircle,
   Tag,
-  Hash
+  Hash,
+  ChevronDown
 } from 'lucide-react'
 import { useStore } from '../store/useStore'
 
@@ -27,6 +30,7 @@ export const TaskDetailDrawer = () => {
     addAcceptanceCriterion,
     addComment,
     columns,
+    user,
     theme
   } = useStore()
 
@@ -39,6 +43,7 @@ export const TaskDetailDrawer = () => {
   const [priority, setPriority] = useState('Medium')
   const [storyPoints, setStoryPoints] = useState(3)
   const [columnId, setColumnId] = useState('backlog')
+  const [assignee, setAssignee] = useState(null)
   const [newAcText, setNewAcText] = useState('')
   const [newCommentText, setNewCommentText] = useState('')
 
@@ -50,6 +55,7 @@ export const TaskDetailDrawer = () => {
       setPriority(task.priority || 'Medium')
       setStoryPoints(task.storyPoints || 3)
       setColumnId(task.columnId || 'backlog')
+      setAssignee(task.assignee || { name: 'Unassigned', avatar: '', role: 'Unassigned' })
     }
   }, [task])
 
@@ -74,7 +80,8 @@ export const TaskDetailDrawer = () => {
       category,
       priority,
       storyPoints: Number(storyPoints),
-      columnId
+      columnId,
+      assignee
     })
     closeTaskDrawer()
   }
@@ -99,12 +106,53 @@ export const TaskDetailDrawer = () => {
     setNewCommentText('')
   }
 
+  const handleAssignToMe = () => {
+    const me = {
+      id: user?.id || 'user-me',
+      name: user?.name || 'Me',
+      email: user?.email || '',
+      avatar: user?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces',
+      role: user?.role || 'Lead Engineer'
+    }
+    setAssignee(me)
+  }
+
+  const handleUnassign = () => {
+    setAssignee({ name: 'Unassigned', avatar: '', role: 'Unassigned' })
+  }
+
+  const isAssignedToMe = () => {
+    if (!assignee || !user) return false
+    const myName = (user.name || '').trim().toLowerCase()
+    const myEmail = (user.email || '').trim().toLowerCase()
+    const myId = user.id
+    
+    if (typeof assignee === 'string') {
+      const a = assignee.trim().toLowerCase()
+      return a === myName || a === myEmail
+    }
+    return (myId && assignee.id === myId) || 
+           (myName && assignee.name?.toLowerCase() === myName) || 
+           (myEmail && assignee.email?.toLowerCase() === myEmail)
+  }
+
+  const isUnassigned = !assignee || assignee.name === 'Unassigned' || assignee === 'Unassigned'
+
   const completedAcCount = task.acceptanceCriteria?.filter((ac) => ac.completed).length || 0
   const totalAcCount = task.acceptanceCriteria?.length || 0
   const progressPercent = totalAcCount > 0 ? (completedAcCount / totalAcCount) * 100 : 0
 
   const categories = ['Frontend', 'Backend', 'Database', 'Security', 'AI / LLM', 'Planning', 'DevOps']
   const priorities = ['High', 'Medium', 'Low']
+
+  const teamPresets = [
+    { name: 'Unassigned', role: 'None', avatar: '' },
+    ...(user ? [{ name: user.name || 'Me (You)', role: user.role || 'Lead Engineer', avatar: user.avatar || '' }] : []),
+    { name: 'Sarah Chen', role: 'Backend Lead', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=faces' },
+    { name: 'Alex Rivera', role: 'Frontend Engineer', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=faces' },
+    { name: 'Elena Rostova', role: 'AI Specialist', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces' },
+    { name: 'Marcus Vance', role: 'DevOps Architect', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=faces' },
+  ]
 
   return (
     <div 
@@ -247,23 +295,108 @@ export const TaskDetailDrawer = () => {
 
           </div>
 
-          {/* Assignee Card */}
-          <div className={`flex items-center justify-between p-3.5 rounded-2xl border ${isDark ? 'bg-[#090D16] border-[#1F293D]' : 'bg-slate-50 border-slate-200'
-            }`}>
-            <div className="flex items-center gap-3">
-              <img
-                src={task.assignee?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces'}
-                alt={task.assignee?.name}
-                className="w-9 h-9 rounded-full object-cover border border-slate-300"
-              />
-              <div>
-                <span className={`text-[11px] block ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Assigned Engineer</span>
-                <span className="text-xs font-bold">{task.assignee?.name || 'Unassigned'}</span>
+          {/* Interactive Assignee Section */}
+          <div className={`p-4 rounded-2xl border flex flex-col gap-3.5 transition-all ${
+            isDark ? 'bg-[#090D16] border-[#1F293D]' : 'bg-slate-50 border-slate-200'
+          }`}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <User className="w-4 h-4 text-teal-400" />
+                <span className="text-[11px] font-bold text-teal-500 uppercase tracking-wider">
+                  Assigned Engineer
+                </span>
+              </div>
+
+              {/* Assign to Me / Unassign Quick Buttons */}
+              <div className="flex items-center gap-2">
+                {!isAssignedToMe() && (
+                  <button
+                    type="button"
+                    onClick={handleAssignToMe}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-teal-500/10 hover:bg-teal-500/20 text-teal-400 border border-teal-500/30 text-xs font-bold rounded-xl transition-all cursor-pointer shadow-xs"
+                  >
+                    <UserCheck className="w-3.5 h-3.5" />
+                    <span>Assign to Me</span>
+                  </button>
+                )}
+
+                {!isUnassigned && (
+                  <button
+                    type="button"
+                    onClick={handleUnassign}
+                    className={`flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold rounded-xl transition-all cursor-pointer ${
+                      isDark ? 'text-slate-400 hover:text-red-400 hover:bg-red-500/10' : 'text-slate-500 hover:text-red-600 hover:bg-red-50'
+                    }`}
+                    title="Remove assignment"
+                  >
+                    <UserMinus className="w-3.5 h-3.5" />
+                    <span>Unassign</span>
+                  </button>
+                )}
               </div>
             </div>
-            <span className="text-xs text-teal-500 font-mono bg-teal-500/10 px-2.5 py-1 rounded-lg border border-teal-500/30">
-              {task.assignee?.role || 'Developer'}
-            </span>
+
+            {/* Assignee Card & Selector */}
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                {assignee?.avatar ? (
+                  <img
+                    src={assignee.avatar}
+                    alt={assignee.name}
+                    className="w-10 h-10 rounded-full object-cover border-2 border-teal-500/40 shrink-0"
+                  />
+                ) : (
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center border font-bold text-sm shrink-0 ${
+                    isUnassigned
+                      ? (isDark ? 'bg-[#172033] border-[#1F293D] text-slate-500' : 'bg-slate-200 border-slate-300 text-slate-500')
+                      : 'bg-teal-500/10 border-teal-500/30 text-teal-400'
+                  }`}>
+                    {assignee?.name?.charAt(0) || '?'}
+                  </div>
+                )}
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-bold">{assignee?.name || 'Unassigned'}</span>
+                    {isAssignedToMe() && (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-teal-500/10 border border-teal-500/30 text-teal-400">
+                        You
+                      </span>
+                    )}
+                  </div>
+                  <span className={`text-xs block mt-0.5 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                    {assignee?.role || (isUnassigned ? 'No one assigned yet' : 'Engineer')}
+                  </span>
+                </div>
+              </div>
+
+              {/* Quick Select Teammate Dropdown */}
+              <div className="relative">
+                <select
+                  value={assignee?.name || 'Unassigned'}
+                  onChange={(e) => {
+                    const selected = teamPresets.find(p => p.name === e.target.value)
+                    if (selected) {
+                      if (selected.name === 'Unassigned') {
+                        handleUnassign()
+                      } else if (selected.name === (user?.name || 'Me (You)')) {
+                        handleAssignToMe()
+                      } else {
+                        setAssignee(selected)
+                      }
+                    }
+                  }}
+                  className={`text-xs font-semibold px-3 py-2 rounded-xl border focus:outline-none focus:border-teal-500 cursor-pointer ${
+                    isDark ? 'bg-[#111827] text-slate-200 border-[#1F293D]' : 'bg-white text-slate-800 border-slate-300'
+                  }`}
+                >
+                  {teamPresets.map((member, idx) => (
+                    <option key={idx} value={member.name}>
+                      {member.name} {member.role !== 'None' ? `(${member.role})` : ''}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
           </div>
 
           {/* Description */}
