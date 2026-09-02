@@ -1,6 +1,7 @@
 import React from 'react'
-import { Zap, LayoutDashboard, CheckSquare, Plus, Hash, FileText, PanelLeftClose, PanelLeftOpen } from 'lucide-react'
+import { LayoutDashboard, CheckSquare, Plus, Hash, FileText, PanelLeftClose, PanelLeftOpen } from 'lucide-react'
 import { useStore } from '../store/useStore'
+import { BrandLogo } from './BrandLogo'
 
 export const Sidebar = () => {
   const {
@@ -28,7 +29,7 @@ export const Sidebar = () => {
           title="Go to Projects Dashboard"
         >
           <div className="w-8 h-8 rounded-xl bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-teal-400 group-hover:scale-105 transition-smooth shadow-xs shrink-0">
-            <Zap className="w-4 h-4 fill-current" />
+            <BrandLogo className="w-5 h-5 text-teal-400" />
           </div>
           {!isSidebarCollapsed && (
             <div className="flex items-baseline gap-1 overflow-hidden">

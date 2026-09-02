@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import { 
-  Zap, 
   Sparkles, 
   ArrowRight, 
   Check, 
@@ -12,6 +11,7 @@ import {
   Sun,
   Moon
 } from 'lucide-react'
+import { BrandLogo } from './BrandLogo'
 import { useStore } from '../store/useStore'
 import { supabaseService } from '../services/supabaseService'
 import { isSupabaseConfigured } from '../lib/supabase'
@@ -83,7 +83,7 @@ export const LandingPage = () => {
       <header className="flex items-center justify-between max-w-7xl mx-auto w-full">
         <div className="flex items-center gap-2.5">
           <div className="w-10 h-10 rounded-2xl bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-teal-400 shadow-xs">
-            <Zap className="w-5 h-5 fill-current" />
+            <BrandLogo className="w-6 h-6 text-teal-400" />
           </div>
           <div className="flex items-baseline gap-1">
             <span className="font-extrabold text-2xl tracking-tight">SprintCraft</span>
