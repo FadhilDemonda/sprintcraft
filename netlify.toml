@@ -1,0 +1,27 @@
+# ==============================================================================
+# SprintCraft AI - Netlify Production Deployment Configuration
+# ==============================================================================
+
+[build]
+  base = "client"
+  publish = "dist"
+  command = "npm run build"
+
+[build.environment]
+  NODE_VERSION = "20"
+  NPM_FLAGS = "--legacy-peer-deps"
+
+# SPA Routing: Redirect all routes to index.html for React Router / Zustand state
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Security Headers
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"

@@ -26,12 +26,30 @@ const mapTaskFromDb = (t) => ({
   })),
 })
 
+const normalizeTaskStatus = (s) => {
+  if (!s) return 'backlog'
+  const clean = String(s).toLowerCase().trim().replace(/[\s-]+/g, '_')
+  if (['backlog', 'todo', 'in_progress', 'review', 'done'].includes(clean)) return clean
+  if (clean === 'in_progress' || clean === 'inprogress') return 'in_progress'
+  if (clean === 'to_do') return 'todo'
+  if (clean === 'completed') return 'done'
+  return 'backlog'
+}
+
+const normalizeTaskPriority = (p) => {
+  if (!p) return 'Medium'
+  const str = String(p).trim()
+  const cap = str.charAt(0).toUpperCase() + str.slice(1).toLowerCase()
+  if (['Low', 'Medium', 'High', 'Urgent'].includes(cap)) return cap
+  return 'Medium'
+}
+
 const mapTaskToDb = (t) => {
   const row = {
-    title: t.title,
-    description: t.description,
-    status: t.columnId || t.status || 'backlog',
-    priority: t.priority,
+    title: t.title || 'Untitled Task',
+    description: t.description || '',
+    status: normalizeTaskStatus(t.columnId || t.status || 'backlog'),
+    priority: normalizeTaskPriority(t.priority || 'Medium'),
     category: t.category || t.type || 'Feature',
     story_points: Number(t.storyPoints) || 3,
     assignee: typeof t.assignee === 'object' && t.assignee ? t.assignee.name : t.assignee || null,
